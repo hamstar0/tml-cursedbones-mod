@@ -18,6 +18,11 @@ namespace CursedBones {
 
 		////////////////
 
+		public bool DebugModeInfo { get; set; } = false;
+
+
+		////
+
 		[Range(0, 1000)]
 		[DefaultValue(20)]
 		public int CursedBonesSkullAttemptsPerTick { get; set; } = 20;
@@ -30,22 +35,22 @@ namespace CursedBones {
 		[DefaultValue(11)]
 		public int CursedBonesSkullDamage { get; set; } = 11;
 
-		//
+		////
 
 		[DefaultValue( true )]
 		public bool CursedBonesWorldGenEnabled { get; set; } = true;
 
 
 		[Range( 5, 9999 )]
-		[DefaultValue( 200 )]
-		public int CursedBonesWorldGenMinimumTileDistanceApart { get; set; } = 200;
+		[DefaultValue( 100 )]
+		public int CursedBonesWorldGenMinimumTileDistanceApart { get; set; } = 100;
 
 		[Range( 1, 1000000 )]
-		[DefaultValue( 1000 )]
-		public int CursedBonesWorldGenMaximumRetriesPerPatchUntilQuit { get; set; } = 1000;
+		[DefaultValue( 500 )]
+		public int CursedBonesWorldGenMaximumRetriesPerPatchUntilQuit { get; set; } = 500;
 		
 
-		[Range( 1, 100 )]
+		[Range( 1, 200 )]
 		[DefaultValue( 10 )]
 		public int CursedBonesWorldGenPatchMinimumSize {
 			get => this._CursedBonesWorldGenPatchMinimumSize;
@@ -58,7 +63,7 @@ namespace CursedBones {
 			}
 		}
 
-		[Range( 1, 100 )]
+		[Range( 1, 200 )]
 		[DefaultValue( 32 )]
 		public int CursedBonesWorldGenPatchMaximumSize {
 			get => this._CursedBonesWorldGenPatchMaximumSize;

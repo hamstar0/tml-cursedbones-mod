@@ -17,18 +17,31 @@ namespace CursedBones {
 			int patchSize = WorldGen.genRand.Next( minPatchSize, maxPatchSize );
 
 			var done = new HashSet<(int x, int y)>();
-			var candidates = new HashSet<(int x, int y)>();
+			var candidates = new HashSet<(int x, int y)> { (tileX, tileY) };
+			int gennedTiles = 0;
 
-			for( (int x, int y) pair = (tileX, tileY); candidates.Count > 0; pair = this.PopNextPatchTileCandidate(candidates) ) {
-				if( this.GenPatchTileAt(pair.x, pair.y, done) ) {
-					patchSize--;
+			(int x, int y) pair;
+			do {
+				pair = this.PopNextPatchTileCandidate( candidates );
 
-					if( patchSize <= 0 ) {
+				done.Add( pair );
+
+				if( this.GenPatchTileAt(pair.x, pair.y) ) {
+					gennedTiles++;
+
+					if( gennedTiles >= patchSize ) {
 						break;
 					}
 				}
 
 				this.GetNextPatchTilesCandidatesNear( pair.x, pair.y, candidates, done, 1 );
+			} while( candidates.Count > 0 );
+
+			if( config.DebugModeInfo ) {
+				CursedBonesMod.Instance.Logger.Info(
+					"Generated Cursed Bones pile at " + tileX + ", " + tileY
+					+ " with " + gennedTiles + " tiles."
+				);
 			}
 		}
 
@@ -37,13 +50,10 @@ namespace CursedBones {
 
 		private bool GenPatchTileAt(
 					int tileX,
-					int tileY,
-					ISet<(int x, int y)> done ) {
+					int tileY ) {
 			if( !this.IsValidGenTile(tileX, tileY) ) {
 				return false;
 			}
-
-			done.Add( (tileX, tileY) );
 
 			bool success = WorldGen.PlaceTile(
 				i: tileX,
