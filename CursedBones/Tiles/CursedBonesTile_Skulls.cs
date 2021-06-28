@@ -57,7 +57,7 @@ namespace CursedBones.Tiles {
 				ai1: 0f
 			);
 			Projectile proj = Main.projectile[projWho];
-			proj.scale = 0.5f;
+			proj.scale = 0.75f;
 			proj.tileCollide = false;
 			proj.timeLeft = 300;
 		}

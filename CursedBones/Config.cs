@@ -24,16 +24,16 @@ namespace CursedBones {
 		////
 
 		[Range(0, 1000)]
-		[DefaultValue(20)]
-		public int CursedBonesSkullAttemptsPerTick { get; set; } = 20;
+		[DefaultValue(10)]
+		public int CursedBonesSkullAttemptsPerTick { get; set; } = 10;
 
 		[Range(0, 500)]
-		[DefaultValue(50)]
-		public int CursedBonesSkullAttackTileRange { get; set; } = 50;
+		[DefaultValue(30)]
+		public int CursedBonesSkullAttackTileRange { get; set; } = 30;
 
 		[Range(1, 9999)]
-		[DefaultValue(11)]
-		public int CursedBonesSkullDamage { get; set; } = 11;
+		[DefaultValue(10)]
+		public int CursedBonesSkullDamage { get; set; } = 10;
 
 		////
 
