@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
 
 
 namespace CursedBones.Tiles {
-	public delegate bool CustomDrop( int tileX, int tileY );
+	public delegate bool CustomItemDrop( int tileX, int tileY );
 
 
 
@@ -21,12 +22,6 @@ namespace CursedBones.Tiles {
 		////////////////
 
 		private static int CurrentFrame = 0;
-
-
-
-		////////////////
-
-		public event CustomDrop CustomDrops;
 
 
 
@@ -53,6 +48,24 @@ namespace CursedBones.Tiles {
 
 		////////////////
 
+		private ISet<CustomItemDrop> CustomItemDrops;
+
+
+
+		////////////////
+		
+		public void AddCustomItemDropHook( CustomItemDrop hook ) {
+			var mytile = ModContent.GetInstance<CursedBonesTile>();
+			if( mytile.CustomItemDrops == null ) {
+				mytile.CustomItemDrops = new HashSet<CustomItemDrop>();
+			}
+
+			mytile.CustomItemDrops.Add( hook );
+		}
+
+
+		////////////////
+
 		public override void SetDefaults() {
 			Main.tileLighted[ this.Type ] = true;
 			Main.tileSolid[ this.Type ] = true;
@@ -73,7 +86,15 @@ namespace CursedBones.Tiles {
 		////////////////
 
 		public override bool Drop( int i, int j ) {
-			return this.CustomDrops?.Invoke(i, j) ?? true;
+			var mytile = ModContent.GetInstance<CursedBonesTile>();
+
+			foreach( CustomItemDrop hook in mytile.CustomItemDrops ) {
+				if( !hook.Invoke(i, j) ) {
+					return false;
+				}
+			}
+
+			return true;
 		}
 
 
