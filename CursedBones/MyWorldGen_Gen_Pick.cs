@@ -28,14 +28,16 @@ namespace CursedBones {
 		////
 
 		private (int x, int y) PickPriorityPatchTileCandidate( (int x, int y)[] candidates ) {
-			// Prioritize ground tiles near bones
-			foreach( (int x, int y) in candidates ) {
-				if( this.IsNearValidAttachTile(x, y) && this.CountAdjacentBones(x, y) >= 1 ) {
-					return (x, y);
+			// Ground tiles near bones
+			if( WorldGen.genRand.NextFloat() >= 0.5f ) {
+				foreach( (int x, int y) in candidates ) {
+					if( this.IsNearValidAttachTile(x, y) && this.CountAdjacentBones(x, y) >= 1 ) {
+						return (x, y);
+					}
 				}
 			}
 
-			// Prioritize bone growth with porousity
+			// Bone growth with porousity
 			foreach( (int x, int y) in candidates ) {
 				int nearbyBones = this.CountAdjacentBones( x, y );
 				if( nearbyBones >= 1 && nearbyBones < 3 ) {
@@ -43,7 +45,7 @@ namespace CursedBones {
 				}
 			}
 
-			// Prioritize ground tiles not near bones
+			// Ground tiles not near bones
 			foreach( (int x, int y) in candidates ) {
 				if( this.IsNearValidAttachTile(x, y) ) {
 					return (x, y);

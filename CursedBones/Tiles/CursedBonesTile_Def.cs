@@ -64,6 +64,11 @@ namespace CursedBones.Tiles {
 			this.animationFrameHeight = 90;
 		}
 
+		public override bool CanExplode( int i, int j ) {
+			//return Main.tile[i, j]?.type == ModContent.TileType<CursedBonesTile>();
+			return false;
+		}
+
 
 		////////////////
 

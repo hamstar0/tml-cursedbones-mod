@@ -7,14 +7,42 @@ using Terraria.World.Generation;
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
-		private bool IsValidGenTile( int x, int y ) {
+		private bool IsValidGenTile( int x, int y, out bool hasMatter ) {
 			if( x <= 1 || x >= Main.maxTilesX - 1 || y <= 1 || y >= Main.maxTilesY - 1 ) {
+				hasMatter = true;
 				return false;
 			}
 
 			Tile tile = Main.tile[x, y];
-			if( tile?.active() == true ) {
-				return false;
+
+			hasMatter = tile?.active() == true;
+
+			if( hasMatter ) {
+				switch( tile.type ) {
+				case TileID.Dirt:
+				case TileID.Stone:
+				case TileID.Grass:
+				case TileID.Mud:
+				case TileID.JungleGrass:
+				case TileID.CorruptGrass:
+				case TileID.FleshGrass:
+				case TileID.Ebonstone:
+				case TileID.Crimstone:
+				case TileID.Sand:
+				case TileID.Sandstone:
+				case TileID.HardenedSand:
+				case TileID.Ebonsand:
+				case TileID.Crimsand:
+				case TileID.CorruptSandstone:
+				case TileID.CrimsonSandstone:
+				case TileID.CorruptHardenedSand:
+				case TileID.CrimsonHardenedSand:
+					// 25% chance to allow solid 'ground' to be replaced
+					if( WorldGen.genRand.NextFloat() > 0.25f ) {
+						return false;
+					}
+					break;
+				}
 			}
 
 			return this.HasAdjacentAttachArea( x, y );
@@ -22,7 +50,7 @@ namespace CursedBones {
 
 		private bool HasAdjacentAttachArea( int x, int y ) {
 			bool scan( int x2, int y2 ) {
-				return this.IsValidAttachArea( x2, y2, new HashSet<(int, int)>() );
+				return this.IsValidAttachArea( x, y, x2, y2, new HashSet<(int, int)>() );
 			}
 
 			if( scan( x - 1, y ) ) { return true; }
@@ -32,12 +60,15 @@ namespace CursedBones {
 			return false;
 		}
 
-		private bool IsValidAttachArea( int x, int y, ISet<(int x, int y)> scanned ) {
+		private bool IsValidAttachArea( int primeX, int primeY, int x, int y, ISet<(int x, int y)> scanned ) {
 			if( scanned.Count >= 10 ) {
 				return true;
 			}
 
 			bool scan( int x2, int y2, ISet<(int x, int y)> scanned2 ) {
+				if( x2 == primeX && y2 == primeY ) {
+					return false;
+				}
 				if( scanned2.Contains( (x2, y2) ) ) {
 					return false;
 				}
@@ -47,13 +78,13 @@ namespace CursedBones {
 
 				scanned2.Add( (x2, y2) );
 
-				return this.IsValidAttachArea( x2, y2, scanned2 );
+				return this.IsValidAttachArea( x, y, x2, y2, scanned2 );
 			}
 
-			if( scan( x - 1, y, scanned ) ) { return true; }
-			if( scan( x + 1, y, scanned ) ) { return true; }
-			if( scan( x, y - 1, scanned ) ) { return true; }
-			if( scan( x, y + 1, scanned ) ) { return true; }
+			if( scan(x - 1, y, scanned) ) { return true; }
+			if( scan(x + 1, y, scanned) ) { return true; }
+			if( scan(x, y - 1, scanned) ) { return true; }
+			if( scan(x, y + 1, scanned) ) { return true; }
 			return false;
 		}
 
@@ -108,16 +139,16 @@ namespace CursedBones {
 				int yT = startTileY - i;
 				int yB = startTileY + i;
 
-				if( this.IsValidGenTile(xL, startTileY) ) {
+				if( this.IsValidGenTile(xL, startTileY, out _) ) {
 					return (xL, startTileY);
 				}
-				if( this.IsValidGenTile(xR, startTileY) ) {
+				if( this.IsValidGenTile(xR, startTileY, out _) ) {
 					return (xR, startTileY);
 				}
-				if( this.IsValidGenTile(startTileX, yT) ) {
+				if( this.IsValidGenTile(startTileX, yT, out _) ) {
 					return (startTileX, yT);
 				}
-				if( this.IsValidGenTile(startTileX, yT) ) {
+				if( this.IsValidGenTile(startTileX, yT, out _) ) {
 					return (startTileX, yB);
 				}
 			}

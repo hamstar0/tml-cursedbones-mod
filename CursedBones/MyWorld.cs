@@ -12,7 +12,9 @@ namespace CursedBones {
 			int max = Main.player.Length;
 			for( int i=0; i<max; i++ ) {
 				Player plr = Main.player[i];
-				if( plr?.active != true ) { continue; }
+				if( plr?.active != true || plr.dead ) {
+					continue;
+				}
 
 				CursedBonesTile.RunBonesLaunchersNearby( plr );
 			}

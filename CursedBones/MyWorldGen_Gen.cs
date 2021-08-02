@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Terraria;
-using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.World.Generation;
 using CursedBones.Tiles;
@@ -51,8 +49,12 @@ namespace CursedBones {
 		private bool GenPatchTileAt(
 					int tileX,
 					int tileY ) {
-			if( !this.IsValidGenTile(tileX, tileY) ) {
+			if( !this.IsValidGenTile(tileX, tileY, out bool hasMatter) ) {
 				return false;
+			}
+
+			if( hasMatter ) {
+				WorldGen.KillTile( tileX, tileY );
 			}
 
 			bool success = WorldGen.PlaceTile(
@@ -60,7 +62,21 @@ namespace CursedBones {
 				j: tileY,
 				type: ModContent.TileType<CursedBonesTile>()
 			);
+
 			if( success ) {
+				if( tileX >= 1 ) {
+					Main.tile[tileX - 1, tileY]?.slope( 0 );
+				}
+				if( tileY >= 1 ) {
+					Main.tile[tileX, tileY - 1]?.slope( 0 );
+				}
+				if( tileY < Main.maxTilesY - 1 ) {
+					Main.tile[tileX, tileY + 1]?.slope( 0 );
+				}
+				if( tileX < Main.maxTilesX - 1 ) {
+					Main.tile[tileX + 1, tileY]?.slope( 0 );
+				}
+
 				WorldGen.SquareTileFrame( tileX, tileY );
 			}
 
@@ -76,28 +92,28 @@ namespace CursedBones {
 					ISet<(int x, int y)> candidates,
 					ISet<(int x, int y)> done,
 					int depth ) {
-			if( !done.Contains( (tileX-1, tileY-1) ) && this.IsValidGenTile(tileX-1, tileY-1) ) {
+			if( !done.Contains( (tileX-1, tileY-1) ) && this.IsValidGenTile(tileX-1, tileY-1, out _) ) {
 				candidates.Add( (tileX-1, tileY-1) );
 			}
-			if( !done.Contains( (tileX, tileY-1) ) && this.IsValidGenTile(tileX, tileY-1) ) {
+			if( !done.Contains( (tileX, tileY-1) ) && this.IsValidGenTile(tileX, tileY-1, out _) ) {
 				candidates.Add( (tileX, tileY-1) );
 			}
-			if( !done.Contains( (tileX+1, tileY-1) ) && this.IsValidGenTile(tileX+1, tileY-1) ) {
+			if( !done.Contains( (tileX+1, tileY-1) ) && this.IsValidGenTile(tileX+1, tileY-1, out _) ) {
 				candidates.Add( (tileX+1, tileY-1) );
 			}
-			if( !done.Contains( (tileX-1, tileY) ) && this.IsValidGenTile(tileX-1, tileY) ) {
+			if( !done.Contains( (tileX-1, tileY) ) && this.IsValidGenTile(tileX-1, tileY, out _) ) {
 				candidates.Add( (tileX-1, tileY) );
 			}
-			if( !done.Contains( (tileX+1, tileY) ) && this.IsValidGenTile(tileX+1, tileY) ) {
+			if( !done.Contains( (tileX+1, tileY) ) && this.IsValidGenTile(tileX+1, tileY, out _) ) {
 				candidates.Add( (tileX+1, tileY) );
 			}
-			if( !done.Contains( (tileX-1, tileY+1) ) && this.IsValidGenTile(tileX-1, tileY+1) ) {
+			if( !done.Contains( (tileX-1, tileY+1) ) && this.IsValidGenTile(tileX-1, tileY+1, out _) ) {
 				candidates.Add( (tileX-1, tileY+1) );
 			}
-			if( !done.Contains( (tileX, tileY+1) ) && this.IsValidGenTile(tileX, tileY+1) ) {
+			if( !done.Contains( (tileX, tileY+1) ) && this.IsValidGenTile(tileX, tileY+1, out _) ) {
 				candidates.Add( (tileX, tileY+1) );
 			}
-			if( !done.Contains( (tileX+1, tileY+1) ) && this.IsValidGenTile(tileX+1, tileY+1) ) {
+			if( !done.Contains( (tileX+1, tileY+1) ) && this.IsValidGenTile(tileX+1, tileY+1, out _) ) {
 				candidates.Add( (tileX+1, tileY+1) );
 			}
 

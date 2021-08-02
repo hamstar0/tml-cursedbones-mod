@@ -35,6 +35,7 @@ namespace CursedBones {
 		[DefaultValue(10)]
 		public int CursedBonesSkullDamage { get; set; } = 10;
 
+
 		////
 
 		[DefaultValue( true )]
