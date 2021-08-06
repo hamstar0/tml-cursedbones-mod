@@ -7,6 +7,48 @@ using Terraria.World.Generation;
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
+		public static bool IsEarthType( int tileType ) {
+			switch( tileType ) {
+			case TileID.Dirt:
+			case TileID.Stone:
+			case TileID.Grass:
+			case TileID.Mud:
+			case TileID.SnowBlock:
+			case TileID.IceBlock:
+			case TileID.Sand:
+			case TileID.Sandstone:
+			case TileID.HardenedSand:
+			case TileID.JungleGrass:
+			case TileID.Granite:
+			case TileID.Marble:
+			case TileID.MushroomGrass:
+			//
+			case TileID.CorruptGrass:
+			case TileID.FleshGrass:
+			case TileID.Ebonstone:
+			case TileID.Crimstone:
+			case TileID.Pearlstone:
+			case TileID.Ebonsand:
+			case TileID.Crimsand:
+			case TileID.CorruptSandstone:
+			case TileID.CrimsonSandstone:
+			case TileID.CorruptHardenedSand:
+			case TileID.CrimsonHardenedSand:
+			case TileID.HallowSandstone:
+			case TileID.HallowHardenedSand:
+			case TileID.CorruptIce:
+			case TileID.FleshIce:
+			case TileID.HallowedIce:
+				return true;
+			default:
+				return false;
+			}
+		}
+
+
+
+		////////////////
+
 		private bool IsValidGenTile( int x, int y, out bool hasMatter ) {
 			if( x <= 1 || x >= Main.maxTilesX - 1 || y <= 1 || y >= Main.maxTilesY - 1 ) {
 				hasMatter = true;
@@ -18,30 +60,14 @@ namespace CursedBones {
 			hasMatter = tile?.active() == true;
 
 			if( hasMatter ) {
-				switch( tile.type ) {
-				case TileID.Dirt:
-				case TileID.Stone:
-				case TileID.Grass:
-				case TileID.Mud:
-				case TileID.JungleGrass:
-				case TileID.CorruptGrass:
-				case TileID.FleshGrass:
-				case TileID.Ebonstone:
-				case TileID.Crimstone:
-				case TileID.Sand:
-				case TileID.Sandstone:
-				case TileID.HardenedSand:
-				case TileID.Ebonsand:
-				case TileID.Crimsand:
-				case TileID.CorruptSandstone:
-				case TileID.CrimsonSandstone:
-				case TileID.CorruptHardenedSand:
-				case TileID.CrimsonHardenedSand:
+				if( CursedBonesPatchesGen.IsEarthType(tile.type) ) {
 					// 25% chance to allow solid 'ground' to be replaced
 					if( WorldGen.genRand.NextFloat() > 0.25f ) {
 						return false;
 					}
-					break;
+				} else {
+					// Exclude all else
+					return false;
 				}
 			}
 
@@ -97,32 +123,8 @@ namespace CursedBones {
 			if( tile?.active() != true ) {
 				return false;
 			}
-
-			switch( tile.type ) {
-			case TileID.Dirt:
-			case TileID.Stone:
-			case TileID.Granite:
-			case TileID.Marble:
-			case TileID.SnowBlock:
-			case TileID.IceBlock:
-			case TileID.HardenedSand:
-			case TileID.Sandstone:
-			case TileID.Mud:
-			case TileID.JungleGrass:
-			case TileID.MushroomGrass:
-			//
-			case TileID.Ebonstone:
-			case TileID.Crimstone:
-			case TileID.Pearlstone:
-			case TileID.CorruptSandstone:
-			case TileID.CorruptHardenedSand:
-			case TileID.CrimsonHardenedSand:
-			case TileID.CrimsonSandstone:
-			case TileID.HallowSandstone:
-			case TileID.HallowHardenedSand:
-			case TileID.CorruptIce:
-			case TileID.FleshIce:
-			case TileID.HallowedIce:
+			
+			if( CursedBonesPatchesGen.IsEarthType(tile.type) ) {
 				return true;
 			}
 
