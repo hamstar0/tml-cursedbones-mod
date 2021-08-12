@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.World.Generation;
 using CursedBones.Tiles;
@@ -13,10 +14,15 @@ namespace CursedBones {
 			int minPatchSize = config.CursedBonesWorldGenPatchMinimumSize;
 			int maxPatchSize = config.CursedBonesWorldGenPatchMaximumSize;
 
-			float gradY = CursedBonesPatchesGen.CalculateGradientPercentAt( tileY );
+			float gradY = CursedBonesPatchesGen.CalculateVerticalGradientPercentAt( tileY );
 
 			int patchSize = WorldGen.genRand.Next( minPatchSize, maxPatchSize );
 			patchSize = (int)( (float)patchSize * gradY );
+
+			if( patchSize < minPatchSize ) {
+				//return false;
+				patchSize = minPatchSize;
+			}
 
 			var done = new HashSet<(int x, int y)>();
 			var candidates = new HashSet<(int x, int y)>();
@@ -44,10 +50,22 @@ namespace CursedBones {
 				this.GetNextPatchTilesCandidatesNear( pair.x, pair.y, candidates, done, 1 );
 			}
 
+			// Too small
+			if( gennedTiles <= 1 && minPatchSize >= 2 ) {
+				int bonesTile = ModContent.TileType<CursedBonesTile>();
+
+				foreach( (int x, int y) in done ) {
+					Tile tile = Main.tile[x, y];
+					if( tile != null && tile.type == bonesTile ) {
+						tile.type = TileID.Stone;
+					}
+				}
+				gennedTiles = 0;
+			}
+
 			if( config.DebugModeInfo ) {
 				CursedBonesMod.Instance.Logger.Info(
-					"Generated Cursed Bones pile at " + tileX + ", " + tileY
-					+ " with " + gennedTiles + " tiles."
+					"Generated Cursed Bones pile at "+tileX+", "+tileY+" with "+gennedTiles+" tiles."
 				);
 			}
 		}

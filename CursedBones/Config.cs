@@ -61,12 +61,12 @@ namespace CursedBones {
 		
 
 		[Range( 1, 200 )]
-		[DefaultValue( 10 )]
+		[DefaultValue( 4 )]
 		public int CursedBonesWorldGenPatchMinimumSize {
 			get => this._CursedBonesWorldGenPatchMinimumSize;
 			set {
-				if( value >= this.CursedBonesWorldGenPatchMaximumSize ) {
-					this._CursedBonesWorldGenPatchMinimumSize = this.CursedBonesWorldGenPatchMaximumSize - 1;
+				if( value >= this._CursedBonesWorldGenPatchMaximumSize ) {
+					this._CursedBonesWorldGenPatchMinimumSize = this._CursedBonesWorldGenPatchMaximumSize - 1;
 				} else {
 					this._CursedBonesWorldGenPatchMinimumSize = value;
 				}
@@ -74,7 +74,7 @@ namespace CursedBones {
 		}
 
 		[Range( 1, 200 )]
-		[DefaultValue( 32 )]
+		[DefaultValue( 28 )]
 		public int CursedBonesWorldGenPatchMaximumSize {
 			get => this._CursedBonesWorldGenPatchMaximumSize;
 			set {
@@ -86,8 +86,8 @@ namespace CursedBones {
 			}
 		}
 
-		private int _CursedBonesWorldGenPatchMinimumSize = 10;
-		private int _CursedBonesWorldGenPatchMaximumSize = 32;
+		private int _CursedBonesWorldGenPatchMinimumSize = 4;
+		private int _CursedBonesWorldGenPatchMaximumSize = 28;
 
 
 		[Range( 1, 100 )]

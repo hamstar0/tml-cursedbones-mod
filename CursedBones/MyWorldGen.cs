@@ -7,35 +7,34 @@ using Terraria.World.Generation;
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
-		public static float CalculateGradientPercentAt( int tileY ) {
-			float gradPerc = 0f;
+		public static float CalculateVerticalGradientPercentAt( int tileY ) {
 			var config = ModContent.GetInstance<CursedBonesConfig>();
 
 			float topGradPercY = config.CursedBonesWorldGenDensityGradientFromStartPercent;
-
-			float topGradY = (float)tileY / ( (float)Main.maxTilesY * topGradPercY );
-			topGradY = 1f - Math.Min( topGradY, 1f );
-
-			gradPerc += topGradY;
+			float botGradPercY = config.CursedBonesWorldGenDensityGradientFromEndPercent;
 
 			//
 
-			float botGradPercY = config.CursedBonesWorldGenDensityGradientFromEndPercent;
+			float topGradRange = (float)Main.maxTilesY * topGradPercY;
+			float topGradY = (float)tileY / topGradRange;
+			topGradY = Math.Min( topGradY, 1f );
+
+			//
+
 			int invTileY = Main.maxTilesY - tileY;
 
-			float botGradY = (float)invTileY / ( (float)Main.maxTilesY * botGradPercY );
-			botGradY = 1f - Math.Min( botGradY, 1f );
-
-			gradPerc += botGradY;
+			float botGradRange = (float)Main.maxTilesY * botGradPercY;
+			float botGradY = (float)invTileY / botGradRange;
+			botGradY = Math.Min( botGradY, 1f );
 
 			//
 
-			return gradPerc;
+			return topGradY * botGradY;
 		}
 
 
 
-		////
+		////////////////
 
 		public CursedBonesPatchesGen() : base( "Cursed Bone Patches", 1f ) { }
 
@@ -64,20 +63,18 @@ namespace CursedBones {
 		////////////////
 
 		public bool AttemptNextPatchGen( int minDist, ISet<(int, int)> genTiles ) {
-			int minMapDim = Main.maxTilesX > Main.maxTilesY
-				? Main.maxTilesY
-				: Main.maxTilesX;
-
-			//
-
 			int randX = WorldGen.genRand.Next( Main.maxTilesX );
 			int randY = WorldGen.genRand.Next( Main.maxTilesY );
 
 			//
 
-			float gradY = CursedBonesPatchesGen.CalculateGradientPercentAt( randY );
+			float gradY = CursedBonesPatchesGen.CalculateVerticalGradientPercentAt( randY );
+			float invGradY = Math.Max( 1f - gradY, 0f );
+			int minMapDim = Main.maxTilesX > Main.maxTilesY
+				? Main.maxTilesY
+				: Main.maxTilesX;
 
-			minDist += (int)((float)minMapDim * gradY);
+			minDist += (int)((float)minMapDim * invGradY);
 
 			//
 
