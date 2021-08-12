@@ -1,11 +1,42 @@
 using System;
 using System.Collections.Generic;
 using Terraria;
+using Terraria.ModLoader;
 using Terraria.World.Generation;
 
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
+		public static float CalculateGradientPercentAt( int tileY ) {
+			float gradPerc = 0f;
+			var config = ModContent.GetInstance<CursedBonesConfig>();
+
+			float topGradPercY = config.CursedBonesWorldGenDensityGradientFromStartPercent;
+
+			float topGradY = (float)tileY / ( (float)Main.maxTilesY * topGradPercY );
+			topGradY = 1f - Math.Min( topGradY, 1f );
+
+			gradPerc += topGradY;
+
+			//
+
+			float botGradPercY = config.CursedBonesWorldGenDensityGradientFromEndPercent;
+			int invTileY = Main.maxTilesY - tileY;
+
+			float botGradY = (float)invTileY / ( (float)Main.maxTilesY * botGradPercY );
+			botGradY = 1f - Math.Min( botGradY, 1f );
+
+			gradPerc += botGradY;
+
+			//
+
+			return gradPerc;
+		}
+
+
+
+		////
+
 		public CursedBonesPatchesGen() : base( "Cursed Bone Patches", 1f ) { }
 
 
@@ -33,20 +64,39 @@ namespace CursedBones {
 		////////////////
 
 		public bool AttemptNextPatchGen( int minDist, ISet<(int, int)> genTiles ) {
-			int minDistSqr = minDist * minDist;
+			int minMapDim = Main.maxTilesX > Main.maxTilesY
+				? Main.maxTilesY
+				: Main.maxTilesX;
+
+			//
+
 			int randX = WorldGen.genRand.Next( Main.maxTilesX );
-			int randY = WorldGen.genRand.Next( Main.maxTilesX );
+			int randY = WorldGen.genRand.Next( Main.maxTilesY );
+
+			//
+
+			float gradY = CursedBonesPatchesGen.CalculateGradientPercentAt( randY );
+
+			minDist += (int)((float)minMapDim * gradY);
+
+			//
+
+			int minDistSqr = minDist * minDist;
+
+			//
 
 			(int x, int y)? testTile = this.ScanForValidRawGenSpot( randX, randY );
 			if( !testTile.HasValue ) {
 				return false;
 			}
-			
+
+			//
+
 			// Any existing gens too close?
 			foreach( (int x, int y) in genTiles ) {
 				int diffX = testTile.Value.x - x;
 				int diffY = testTile.Value.y - y;
-				int diffSqr = diffX * diffX + diffY * diffY;
+				int diffSqr = (diffX * diffX) + (diffY * diffY);
 
 				if( diffSqr < minDistSqr ) {
 					return false;

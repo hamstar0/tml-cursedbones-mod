@@ -12,28 +12,37 @@ namespace CursedBones {
 			var config = CursedBonesConfig.Instance;
 			int minPatchSize = config.CursedBonesWorldGenPatchMinimumSize;
 			int maxPatchSize = config.CursedBonesWorldGenPatchMaximumSize;
+
+			float gradY = CursedBonesPatchesGen.CalculateGradientPercentAt( tileY );
+
 			int patchSize = WorldGen.genRand.Next( minPatchSize, maxPatchSize );
+			patchSize = (int)( (float)patchSize * gradY );
 
 			var done = new HashSet<(int x, int y)>();
-			var candidates = new HashSet<(int x, int y)> { (tileX, tileY) };
+			var candidates = new HashSet<(int x, int y)>();
 			int gennedTiles = 0;
 
+			if( patchSize >= 1 ) {
+				gennedTiles++;
+
+				candidates.Add( (tileX, tileY) );
+			}
+
 			(int x, int y) pair;
-			do {
+			while( candidates.Count >= 1 ) {
 				pair = this.PopNextPatchTileCandidate( candidates );
 
 				done.Add( pair );
 
 				if( this.GenPatchTileAt(pair.x, pair.y) ) {
 					gennedTiles++;
-
 					if( gennedTiles >= patchSize ) {
 						break;
 					}
 				}
 
 				this.GetNextPatchTilesCandidatesNear( pair.x, pair.y, candidates, done, 1 );
-			} while( candidates.Count > 0 );
+			}
 
 			if( config.DebugModeInfo ) {
 				CursedBonesMod.Instance.Logger.Info(
@@ -117,7 +126,7 @@ namespace CursedBones {
 				candidates.Add( (tileX+1, tileY+1) );
 			}
 
-			if( depth-- > 0 ) {
+			if( depth-- >= 1 ) {
 				this.GetNextPatchTilesCandidatesNear( tileX, tileY - 1, candidates, done, depth );
 				this.GetNextPatchTilesCandidatesNear( tileX - 1, tileY, candidates, done, depth );
 				this.GetNextPatchTilesCandidatesNear( tileX, tileY + 1, candidates, done, depth );

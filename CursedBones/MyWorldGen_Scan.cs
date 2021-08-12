@@ -59,6 +59,13 @@ namespace CursedBones {
 
 			hasMatter = tile?.active() == true;
 
+			// No sky tiles
+			if( y < Main.worldSurface ) {
+				if( tile.wall == 0 ) {
+					return false;
+				}
+			}
+
 			if( hasMatter ) {
 				if( CursedBonesPatchesGen.IsEarthType(tile.type) ) {
 					// 25% chance to allow solid 'ground' to be replaced
@@ -76,35 +83,35 @@ namespace CursedBones {
 
 		private bool HasAdjacentAttachArea( int x, int y ) {
 			bool scan( int x2, int y2 ) {
-				return this.IsValidAttachArea( x, y, x2, y2, new HashSet<(int, int)>() );
+				return this.IsValidAttachArea( (x, y), x2, y2, new HashSet<(int, int)>() );
 			}
 
-			if( scan( x - 1, y ) ) { return true; }
-			if( scan( x + 1, y ) ) { return true; }
-			if( scan( x, y - 1 ) ) { return true; }
-			if( scan( x, y + 1 ) ) { return true; }
+			if( scan(x - 1, y) ) { return true; }
+			if( scan(x + 1, y) ) { return true; }
+			if( scan(x, y - 1) ) { return true; }
+			if( scan(x, y + 1) ) { return true; }
 			return false;
 		}
 
-		private bool IsValidAttachArea( int primeX, int primeY, int x, int y, ISet<(int x, int y)> scanned ) {
+		private bool IsValidAttachArea( (int x, int y) skip, int x, int y, ISet<(int x, int y)> scanned ) {
 			if( scanned.Count >= 10 ) {
 				return true;
 			}
 
 			bool scan( int x2, int y2, ISet<(int x, int y)> scanned2 ) {
-				if( x2 == primeX && y2 == primeY ) {
+				if( x2 == skip.x && y2 == skip.y ) {
 					return false;
 				}
 				if( scanned2.Contains( (x2, y2) ) ) {
 					return false;
 				}
-				if( !this.IsValidAttachTile( x2, y2 ) ) {
+				if( !this.IsValidAttachTile(x2, y2) ) {
 					return false;
 				}
 
 				scanned2.Add( (x2, y2) );
 
-				return this.IsValidAttachArea( x, y, x2, y2, scanned2 );
+				return this.IsValidAttachArea( (x, y), x2, y2, scanned2 );
 			}
 
 			if( scan(x - 1, y, scanned) ) { return true; }

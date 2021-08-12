@@ -42,6 +42,15 @@ namespace CursedBones {
 		public bool CursedBonesWorldGenEnabled { get; set; } = true;
 
 
+		[Range( 0f, 1f )]
+		[DefaultValue( 0.35f )]
+		public float CursedBonesWorldGenDensityGradientFromStartPercent { get; set; } = 0.35f;
+
+		[Range( 0f, 1f )]
+		[DefaultValue( 0.075f )]
+		public float CursedBonesWorldGenDensityGradientFromEndPercent { get; set; } = 0.075f;
+
+
 		[Range( 5, 9999 )]
 		[DefaultValue( 100 )]
 		public int CursedBonesWorldGenMinimumTileDistanceApart { get; set; } = 100;
