@@ -2,101 +2,70 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Terraria;
-using Terraria.ID;
-using Terraria.ModLoader;
 using Terraria.World.Generation;
-using CursedBones.Tiles;
 
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
-		private (int x, int y) GetNextPatchTileCandidate( ISet<(int x, int y)> candidates ) {
+		private (int x, int y)? PickAndRemoveNextTileFromCandidates( ISet<(int x, int y)> candidates ) {
 			var config = CursedBonesConfig.Instance;
-			int porousity = config.CursedBonesWorldGenPatchPorousityDegree;
+			int density = config.CursedBonesWorldGenPatchDensityDegree; // higher this is, the more "compact"
 
-			var candidateCandidates = new Dictionary<int, (int, int)>();
-			(int, int)[] candidatesArray = candidates.ToArray();
+			(int, int)[] sample = this.PickRandomTileSampleFromCandidates( candidates, density );
+			(int, int)? pick = this.PickPriorityTileFromCandidates( sample );	// prioritizes denser patches
 
-			for( int i=0; i<porousity; i++ ) {
-				int check = WorldGen.genRand.Next( candidatesArray.Length );
-				candidateCandidates[ check ] = candidatesArray[ check ];
+			if( pick.HasValue ) {
+				candidates.Remove( pick.Value );
 			}
 
-			return this.PickPriorityPatchTileCandidate( candidateCandidates.Values.ToArray() );
-		}
-
-		////
-
-		private (int x, int y) PickPriorityPatchTileCandidate( (int x, int y)[] candidates ) {
-			// Ground tiles near bones
-			if( WorldGen.genRand.NextFloat() >= 0.5f ) {
-				foreach( (int x, int y) in candidates ) {
-					if( this.IsNearValidAttachTile(x, y) && this.CountAdjacentBones(x, y) >= 1 ) {
-						return (x, y);
-					}
-				}
-			}
-
-			// Bone growth with porousity
-			foreach( (int x, int y) in candidates ) {
-				int nearbyBones = this.CountAdjacentBones( x, y );
-				if( nearbyBones >= 1 && nearbyBones < 3 ) {
-					return (x, y);
-				}
-			}
-
-			// Ground tiles not near bones
-			foreach( (int x, int y) in candidates ) {
-				if( this.IsNearValidAttachTile(x, y) ) {
-					return (x, y);
-				}
-			}
-
-			// Otherwise, any tiles near concentrations of other bones
-			return candidates.FirstOrDefault();
+			return pick;
 		}
 
 
 		////////////////
 
-		private bool IsNearValidAttachTile( int tileX, int tileY ) {
-			if( this.IsValidAttachTile(tileX, tileY-1) ) {
-				return true;
+		private (int x, int y)[] PickRandomTileSampleFromCandidates( ISet<(int x, int y)> candidates, int sampleSize ) {
+			var candidateCandidates = new Dictionary<int, (int, int)>();
+			(int, int)[] candidatesArray = candidates.ToArray();
+
+			for( int i=0; i<sampleSize; i++ ) {
+				int check = WorldGen.genRand.Next( candidatesArray.Length );
+				candidateCandidates[ check ] = candidatesArray[ check ];
 			}
-			if( this.IsValidAttachTile(tileX-1, tileY) ) {
-				return true;
-			}
-			if( this.IsValidAttachTile(tileX, tileY+1) ) {
-				return true;
-			}
-			if( this.IsValidAttachTile(tileX+1, tileY) ) {
-				return true;
-			}
-			return false;
+
+			return candidateCandidates.Values.ToArray();
 		}
 
-		private int CountAdjacentBones( int tileX, int tileY ) {
-			if( tileX <= 1 || tileX >= Main.maxTilesX-1 || tileY <= 1 || tileY >= Main.maxTilesY-1 ) {
-				return 0;
+		////
+
+		private (int x, int y)? PickPriorityTileFromCandidates( (int x, int y)[] candidates ) {
+			// Crawl outwardly across the ground, if possible (75% of the time)
+			if( WorldGen.genRand.NextFloat() >= 0.75f ) {
+				foreach( (int x, int y) in candidates ) {
+					if( !CursedBonesPatchesGen.HasCardinallyAdjacentValidAttachableTileForBone(x, y) ) { continue; }
+					if( CursedBonesPatchesGen.CountCardinallyAdjacentBones(x, y) == 0 ) { continue; }
+
+					return (x, y);
+				}
 			}
 
-			int bonesTile = ModContent.TileType<CursedBonesTile>();
-			int count = 0;
-
-			if( Main.tile[tileX, tileY-1]?.type == bonesTile ) {
-				count++;
-			}
-			if( Main.tile[tileX, tileY+1]?.type == bonesTile ) {
-				count++;
-			}
-			if( Main.tile[tileX-1, tileY]?.type == bonesTile ) {
-				count++;
-			}
-			if( Main.tile[tileX+1, tileY]?.type == bonesTile ) {
-				count++;
+			// Grow from nearby bones, if not too dense
+			foreach( (int x, int y) in candidates ) {
+				int nearbyBones = CursedBonesPatchesGen.CountCardinallyAdjacentBones( x, y );
+				if( nearbyBones >= 1 && nearbyBones <= 2 ) {
+					return (x, y);
+				}
 			}
 
-			return count;
+			/*// Grow from nearby tiles, regardless of bones
+			foreach( (int x, int y) in candidates ) {
+				if( this.IsNearValidAttachTile(x, y) ) {	<- redundant?
+					return (x, y);
+				}
+			}*/
+
+			// Otherwise, grow upon any random candidate tile nearby
+			return candidates.FirstOrDefault();
 		}
 	}
 }

@@ -91,7 +91,7 @@ namespace CursedBones {
 
 
 		[Range( 1, 100 )]
-		[DefaultValue( 3 )]
-		public int CursedBonesWorldGenPatchPorousityDegree { get; set; } = 3;
+		[DefaultValue( 5 )]
+		public int CursedBonesWorldGenPatchDensityDegree { get; set; } = 5;
 	}
 }

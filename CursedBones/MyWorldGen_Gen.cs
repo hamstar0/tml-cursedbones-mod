@@ -24,8 +24,9 @@ namespace CursedBones {
 				patchSize = minPatchSize;
 			}
 
-			var done = new HashSet<(int x, int y)>();
-			var candidates = new HashSet<(int x, int y)>();
+			ISet<(int x, int y)> genAttempts = new HashSet<(int, int)>();
+			ISet<(int x, int y)> skips = new HashSet<(int, int)>();
+			ISet<(int x, int y)> candidates = new HashSet<(int, int)>();
 			int gennedTiles = 0;
 
 			if( patchSize >= 1 ) {
@@ -34,11 +35,14 @@ namespace CursedBones {
 				candidates.Add( (tileX, tileY) );
 			}
 
-			(int x, int y) pair;
 			while( candidates.Count >= 1 ) {
-				pair = this.PopNextPatchTileCandidate( candidates );
+				(int x, int y)? maybePair = this.PickAndRemoveNextTileFromCandidates( candidates );
+				if( !maybePair.HasValue ) {
+					break;
+				}
 
-				done.Add( pair );
+				(int x, int y) pair = maybePair.Value;
+				genAttempts.Add( pair );
 
 				if( this.GenPatchTileAt(pair.x, pair.y) ) {
 					gennedTiles++;
@@ -47,14 +51,22 @@ namespace CursedBones {
 					}
 				}
 
-				this.GetNextPatchTilesCandidatesNear( pair.x, pair.y, candidates, done, 1 );
+				// Add to the overall list of viable "candidate" tiles with viable tiles near the current tile
+				this.GetNextPatchTilesCandidatesNear(
+					tileX: pair.x,
+					tileY: pair.y,
+					genAttempts: genAttempts,
+					candidates: ref candidates,
+					skips: ref skips,
+					depth: 1
+				);
 			}
 
 			// Too small
 			if( gennedTiles <= 1 && minPatchSize >= 2 ) {
 				int bonesTile = ModContent.TileType<CursedBonesTile>();
 
-				foreach( (int x, int y) in done ) {
+				foreach( (int x, int y) in genAttempts ) {
 					Tile tile = Main.tile[x, y];
 					if( tile != null && tile.type == bonesTile ) {
 						tile.type = TileID.Stone;
@@ -116,51 +128,41 @@ namespace CursedBones {
 		private void GetNextPatchTilesCandidatesNear(
 					int tileX,
 					int tileY,
-					ISet<(int x, int y)> candidates,
-					ISet<(int x, int y)> done,
+					ISet<(int x, int y)> genAttempts,
+					ref ISet<(int x, int y)> candidates,
+					ref ISet<(int x, int y)> skips,
 					int depth ) {
-			if( !done.Contains( (tileX-1, tileY-1) ) && this.IsValidGenTile(tileX-1, tileY-1, out _) ) {
-				candidates.Add( (tileX-1, tileY-1) );
+			void checkCandidate( int x, int y, ref ISet<(int, int)> mycandidates, ref ISet<(int, int)> myskips ) {
+				if( genAttempts.Contains( (x, y) ) || myskips.Contains( (x, y) ) ) {
+					return;
+				}
+
+				if( this.IsValidGenTile(x, y, out bool hasMatter) ) {
+					mycandidates.Add( (x, y) );
+				} else if( hasMatter ) {
+					myskips.Add( (x, y) );
+				}
 			}
-			if( !done.Contains( (tileX, tileY-1) ) && this.IsValidGenTile(tileX, tileY-1, out _) ) {
-				candidates.Add( (tileX, tileY-1) );
-			}
-			if( !done.Contains( (tileX+1, tileY-1) ) && this.IsValidGenTile(tileX+1, tileY-1, out _) ) {
-				candidates.Add( (tileX+1, tileY-1) );
-			}
-			if( !done.Contains( (tileX-1, tileY) ) && this.IsValidGenTile(tileX-1, tileY, out _) ) {
-				candidates.Add( (tileX-1, tileY) );
-			}
-			if( !done.Contains( (tileX+1, tileY) ) && this.IsValidGenTile(tileX+1, tileY, out _) ) {
-				candidates.Add( (tileX+1, tileY) );
-			}
-			if( !done.Contains( (tileX-1, tileY+1) ) && this.IsValidGenTile(tileX-1, tileY+1, out _) ) {
-				candidates.Add( (tileX-1, tileY+1) );
-			}
-			if( !done.Contains( (tileX, tileY+1) ) && this.IsValidGenTile(tileX, tileY+1, out _) ) {
-				candidates.Add( (tileX, tileY+1) );
-			}
-			if( !done.Contains( (tileX+1, tileY+1) ) && this.IsValidGenTile(tileX+1, tileY+1, out _) ) {
-				candidates.Add( (tileX+1, tileY+1) );
-			}
+
+			//
+
+			checkCandidate( tileX - 1, tileY - 1, ref candidates, ref skips );
+			checkCandidate( tileX,     tileY - 1, ref candidates, ref skips );
+			checkCandidate( tileX + 1, tileY - 1, ref candidates, ref skips );
+
+			checkCandidate( tileX - 1, tileY, ref candidates, ref skips );
+			checkCandidate( tileX + 1, tileY, ref candidates, ref skips );
+
+			checkCandidate( tileX - 1, tileY + 1, ref candidates, ref skips );
+			checkCandidate( tileX,     tileY + 1, ref candidates, ref skips );
+			checkCandidate( tileX + 1, tileY + 1, ref candidates, ref skips );
 
 			if( depth-- >= 1 ) {
-				this.GetNextPatchTilesCandidatesNear( tileX, tileY - 1, candidates, done, depth );
-				this.GetNextPatchTilesCandidatesNear( tileX - 1, tileY, candidates, done, depth );
-				this.GetNextPatchTilesCandidatesNear( tileX, tileY + 1, candidates, done, depth );
-				this.GetNextPatchTilesCandidatesNear( tileX + 1, tileY, candidates, done, depth );
+				this.GetNextPatchTilesCandidatesNear( tileX, tileY-1, genAttempts, ref candidates, ref skips, depth );
+				this.GetNextPatchTilesCandidatesNear( tileX-1, tileY, genAttempts, ref candidates, ref skips, depth );
+				this.GetNextPatchTilesCandidatesNear( tileX, tileY+1, genAttempts, ref candidates, ref skips, depth );
+				this.GetNextPatchTilesCandidatesNear( tileX+1, tileY, genAttempts, ref candidates, ref skips, depth );
 			}
-		}
-
-
-		////////////////
-
-		private (int x, int y) PopNextPatchTileCandidate( ISet<(int x, int y)> candidates ) {
-			(int, int) pick = this.GetNextPatchTileCandidate( candidates );
-
-			candidates.Remove( pick );
-
-			return pick;
 		}
 	}
 }

@@ -82,7 +82,7 @@ namespace CursedBones {
 
 			//
 
-			(int x, int y)? testTile = this.ScanForValidRawGenSpot( randX, randY );
+			(int x, int y)? testTile = this.ScanForFirstValidGenTileRadiatingOutward( randX, randY );
 			if( !testTile.HasValue ) {
 				return false;
 			}
