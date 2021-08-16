@@ -41,15 +41,17 @@ namespace CursedBones {
 
 		public override void Apply( GenerationProgress progress ) {
 			var config = CursedBonesConfig.Instance;
-			int minDist = config.CursedBonesWorldGenMinimumTileDistanceApart;
+			int minDistApart = config.CursedBonesWorldGenMinimumTileDistanceApart;
 			int maxRetries = config.CursedBonesWorldGenMaximumRetriesPerPatchUntilQuit;
 
-			int maxTheoreticalGens = (Main.maxTilesX * Main.maxTilesY) / (minDist * minDist);
-			maxTheoreticalGens = (maxTheoreticalGens / 100000) * maxRetries;
+			int maxTheoreticalGens = (Main.maxTilesX * Main.maxTilesY) / (minDistApart * minDistApart);
+			maxTheoreticalGens /= 100;
+			//maxTheoreticalGens = (maxTheoreticalGens / 100000) * maxRetries;
+
 			var gens = new HashSet<(int, int)>();
 
 			for( int retries=0; retries<maxRetries; retries++ ) {
-				if( this.AttemptNextPatchGen(minDist, gens) ) {
+				if( this.AttemptNextPatchGen(minDistApart, gens) ) {
 					retries = 0;
 
 					progress.Value = Math.Min( (float)gens.Count / (float)maxTheoreticalGens, 1f );
@@ -62,7 +64,7 @@ namespace CursedBones {
 
 		////////////////
 
-		public bool AttemptNextPatchGen( int minDist, ISet<(int, int)> genTiles ) {
+		public bool AttemptNextPatchGen( int minDistApart, ISet<(int, int)> allGennedPatches ) {
 			int randX = WorldGen.genRand.Next( Main.maxTilesX );
 			int randY = WorldGen.genRand.Next( Main.maxTilesY );
 
@@ -74,11 +76,11 @@ namespace CursedBones {
 				? Main.maxTilesY
 				: Main.maxTilesX;
 
-			minDist += (int)((float)minMapDim * invGradY);
+			minDistApart += (int)((float)minMapDim * invGradY);
 
 			//
 
-			int minDistSqr = minDist * minDist;
+			int minDistSqr = minDistApart * minDistApart;
 
 			//
 
@@ -90,7 +92,7 @@ namespace CursedBones {
 			//
 
 			// Any existing gens too close?
-			foreach( (int x, int y) in genTiles ) {
+			foreach( (int x, int y) in allGennedPatches ) {
 				int diffX = testTile.Value.x - x;
 				int diffY = testTile.Value.y - y;
 				int diffSqr = (diffX * diffX) + (diffY * diffY);
@@ -102,7 +104,7 @@ namespace CursedBones {
 
 			this.GenPatchAt( testTile.Value.x, testTile.Value.y );
 
-			genTiles.Add( testTile.Value );
+			allGennedPatches.Add( testTile.Value );
 
 			return true;
 		}

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using Terraria;
-using Terraria.ID;
 using Terraria.World.Generation;
 
 
@@ -25,7 +23,8 @@ namespace CursedBones {
 			}
 
 			if( hasMatter ) {
-				if( CursedBonesPatchesGen.IsEarthType(tile.type) ) {
+				return false;
+				/*if( CursedBonesPatchesGen.IsEarthType(tile.type) ) {
 					// 15% chance to allow solid 'ground' to be replaced
 					if( WorldGen.genRand.NextFloat() > 0.15f ) {
 						return false;
@@ -33,7 +32,7 @@ namespace CursedBones {
 				} else {
 					// Exclude all else
 					return false;
-				}
+				}*/
 			}
 
 			return CursedBonesPatchesGen.HasCardinallyAdjacentValidAttachableTileForBone( x, y );
