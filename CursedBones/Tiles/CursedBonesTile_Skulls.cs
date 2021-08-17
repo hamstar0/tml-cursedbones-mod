@@ -62,14 +62,26 @@ namespace CursedBones.Tiles {
 				ai0: -1f,
 				ai1: 0f
 			);
-			Projectile proj = Main.projectile[projWho];
-			proj.scale = 0.75f;
-			proj.tileCollide = false;
-			proj.timeLeft = 300;
+
+			CursedBonesTile.InitializeSkullProjectileStats( projWho );
 
 			if( syncIfServer && Main.netMode == NetmodeID.Server ) {
 				NetMessage.SendData( MessageID.SyncProjectile, -1, -1, null, projWho );
-			}	// redundant?
+
+				var packet = CursedBonesMod.Instance.GetPacket();
+				packet.Write( projWho );
+				packet.Send();
+			}
+		}
+
+
+		////
+
+		internal static void InitializeSkullProjectileStats( int projWho ) {
+			Projectile proj = Main.projectile[ projWho ];
+			proj.scale = 0.75f;
+			proj.tileCollide = false;
+			proj.timeLeft = 300;
 		}
 	}
 }

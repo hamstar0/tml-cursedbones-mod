@@ -1,5 +1,7 @@
+using System.IO;
 using Terraria;
 using Terraria.ModLoader;
+using CursedBones.Tiles;
 
 
 namespace CursedBones {
@@ -22,6 +24,13 @@ namespace CursedBones {
 
 		public override void Unload() {
 			CursedBonesMod.Instance = null;
+		}
+
+
+		////////////////
+
+		public override void HandlePacket( BinaryReader reader, int whoAmI ) {
+			CursedBonesTile.InitializeSkullProjectileStats( reader.ReadInt32() );
 		}
 	}
 }
