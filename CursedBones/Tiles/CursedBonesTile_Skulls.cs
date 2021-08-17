@@ -67,9 +67,9 @@ namespace CursedBones.Tiles {
 			proj.tileCollide = false;
 			proj.timeLeft = 300;
 
-			//if( syncIfServer && Main.netMode == NetmodeID.Server ) {
-			//	NetMessage.SendData( MessageID.SyncProjectile, -1, -1, null, proj.whoAmI );
-			//}		projectile.whoAmI is meaningless?
+			if( syncIfServer && Main.netMode == NetmodeID.Server ) {
+				NetMessage.SendData( MessageID.SyncProjectile, -1, -1, null, projWho );
+			}	// redundant?
 		}
 	}
 }
