@@ -24,8 +24,8 @@ namespace CursedBones {
 		////
 
 		[Range(0, 1000)]
-		[DefaultValue(10)]
-		public int CursedBonesSkullAttemptsPerTick { get; set; } = 10;
+		[DefaultValue(5)]
+		public int CursedBonesSkullAttemptsPerTick { get; set; } = 5;
 
 		[Range(0, 500)]
 		[DefaultValue(30)]
@@ -47,8 +47,8 @@ namespace CursedBones {
 		public float CursedBonesWorldGenDensityGradientFromStartPercent { get; set; } = 0.2f;
 
 		[Range( 0f, 1f )]
-		[DefaultValue( 0.01f )]
-		public float CursedBonesWorldGenDensityGradientFromEndPercent { get; set; } = 0.01f;
+		[DefaultValue( 0.05f )]
+		public float CursedBonesWorldGenDensityGradientFromEndPercent { get; set; } = 0.05f;
 
 
 		[Range( 5, 9999 )]
@@ -74,7 +74,7 @@ namespace CursedBones {
 		}
 
 		[Range( 1, 200 )]
-		[DefaultValue( 28 )]
+		[DefaultValue( 22 )]
 		public int CursedBonesWorldGenPatchMaximumSize {
 			get => this._CursedBonesWorldGenPatchMaximumSize;
 			set {
@@ -87,7 +87,7 @@ namespace CursedBones {
 		}
 
 		private int _CursedBonesWorldGenPatchMinimumSize = 4;
-		private int _CursedBonesWorldGenPatchMaximumSize = 28;
+		private int _CursedBonesWorldGenPatchMaximumSize = 22;
 
 
 		[Range( 1, 100 )]

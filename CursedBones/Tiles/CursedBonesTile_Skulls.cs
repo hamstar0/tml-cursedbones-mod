@@ -7,7 +7,11 @@ using Terraria.ModLoader;
 
 namespace CursedBones.Tiles {
 	public partial class CursedBonesTile : ModTile {
-		public static void RunBonesLaunchersNearby( Player player ) {
+		public static void RunBonesLaunchersNearby( Player player, bool syncIfServer ) {
+			if( syncIfServer && Main.netMode == NetmodeID.MultiplayerClient ) {
+				return;
+			}
+
 			int bonesTileType = ModContent.TileType<CursedBonesTile>();
 			var config = CursedBonesConfig.Instance;
 
@@ -19,23 +23,25 @@ namespace CursedBones.Tiles {
 			for( int i = 0; i < attemptsPerTick; i++ ) {
 				int x = midTileX + Main.rand.Next( -skullRad, skullRad );
 				int y = midTileY + Main.rand.Next( -skullRad, skullRad );
-				if( !WorldGen.InWorld( x, y ) ) {
+				if( !WorldGen.InWorld(x, y) ) {
 					continue;
 				}
 
 				Tile tile = Main.tile[x, y];
-				if( tile?.active() != true || tile.type != bonesTileType ) {
-					continue;
+				if( tile?.active() == true && tile.type == bonesTileType ) {
+					CursedBonesTile.LaunchSkull( player, x, y, syncIfServer );
 				}
-
-				CursedBonesTile.LaunchSkull( player, x, y );
 			}
 		}
 
 
 		////////////////
 
-		public static void LaunchSkull( Player player, int tileX, int tileY ) {
+		public static void LaunchSkull( Player player, int tileX, int tileY, bool syncIfServer ) {
+			if( syncIfServer && Main.netMode == NetmodeID.MultiplayerClient ) {
+				return;
+			}
+
 			var config = CursedBonesConfig.Instance;
 			int damage = config.CursedBonesSkullDamage;
 
@@ -60,6 +66,10 @@ namespace CursedBones.Tiles {
 			proj.scale = 0.75f;
 			proj.tileCollide = false;
 			proj.timeLeft = 300;
+
+			//if( syncIfServer && Main.netMode == NetmodeID.Server ) {
+			//	NetMessage.SendData( MessageID.SyncProjectile, -1, -1, null, proj.whoAmI );
+			//}		projectile.whoAmI is meaningless?
 		}
 	}
 }
