@@ -2,10 +2,11 @@ using System.ComponentModel;
 using Terraria;
 using Terraria.ModLoader;
 using Terraria.ModLoader.Config;
+using CursedBones.Tiles;
 
 
 namespace CursedBones {
-	public class CursedBonesConfig : ModConfig {
+	public partial class CursedBonesConfig : ModConfig {
 		public static CursedBonesConfig Instance => ModContent.GetInstance<CursedBonesConfig>();
 
 
@@ -19,6 +20,14 @@ namespace CursedBones {
 		////////////////
 
 		public bool DebugModeInfo { get; set; } = false;
+
+
+		////
+
+		[Range(0, 1000)]
+		[DefaultValue( CursedBonesTile.DefaultMinPickPower )]
+		[ReloadRequired()]
+		public int CursedBonesTilePickaxeStrength { get; set; } = CursedBonesTile.DefaultMinPickPower;
 
 
 		////

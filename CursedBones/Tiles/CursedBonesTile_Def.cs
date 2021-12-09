@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 
 
@@ -14,12 +15,19 @@ namespace CursedBones.Tiles {
 	public partial class CursedBonesTile : ModTile {
 		public const int MaxRealFrames = 4;
 
+		////
+		
+		public const int DefaultMinPickPower = 100;
+
+
+		////////////////
+
 		public static int DarkFrames { get; private set; } = 8;
 
 		public static int FrameDuration { get; private set; } = 4;
 
 
-		////////////////
+		////
 
 		private static int CurrentFrame = 0;
 
@@ -67,12 +75,28 @@ namespace CursedBones.Tiles {
 		////////////////
 
 		public override void SetDefaults() {
+			var config = CursedBonesConfig.Instance;
+
+			//
+
 			Main.tileLighted[ this.Type ] = true;
 			Main.tileSolid[ this.Type ] = true;
 
+			//
+			
+			this.soundType = SoundID.NPCHit2.SoundId;
+			this.soundStyle = SoundID.NPCHit2.Style;
+			this.minPick = config.Get<int>( nameof(config.CursedBonesTilePickaxeStrength) );
+			this.mineResist = 5f;
+
+			//
+
 			ModTranslation name = this.CreateMapEntryName();
 			name.SetDefault( "Cursed Bones" );
+
 			this.AddMapEntry( new Color(0, 255, 255), name );
+
+			//
 
 			this.animationFrameHeight = 90;
 		}
