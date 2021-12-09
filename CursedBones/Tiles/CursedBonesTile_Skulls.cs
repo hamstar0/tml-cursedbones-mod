@@ -8,10 +8,6 @@ using Terraria.ModLoader;
 namespace CursedBones.Tiles {
 	public partial class CursedBonesTile : ModTile {
 		public static void RunBonesLaunchersNearby( Player player, bool syncIfServer ) {
-			if( syncIfServer && Main.netMode == NetmodeID.MultiplayerClient ) {
-				return;
-			}
-
 			int bonesTileType = ModContent.TileType<CursedBonesTile>();
 			var config = CursedBonesConfig.Instance;
 
@@ -38,10 +34,6 @@ namespace CursedBones.Tiles {
 		////////////////
 
 		public static void LaunchSkull( Player player, int tileX, int tileY, bool syncIfServer ) {
-			if( syncIfServer && Main.netMode == NetmodeID.MultiplayerClient ) {
-				return;
-			}
-
 			var config = CursedBonesConfig.Instance;
 			int damage = config.CursedBonesSkullDamage;
 

@@ -7,7 +7,9 @@ using Terraria.ModLoader;
 
 
 namespace CursedBones.Tiles {
-	public delegate bool CustomItemDrop( int tileX, int tileY );
+	public delegate bool PreCustomItemDrop( int tileX, int tileY );
+
+	public delegate void CustomItemDrop( int tileX, int tileY );
 
 
 
@@ -56,6 +58,8 @@ namespace CursedBones.Tiles {
 
 		////////////////
 
+		private ISet<PreCustomItemDrop> PreCustomItemDrops;
+
 		private ISet<CustomItemDrop> CustomItemDrops;
 
 
@@ -64,6 +68,10 @@ namespace CursedBones.Tiles {
 		
 		public void AddCustomItemDropHook( CustomItemDrop hook ) {
 			var mytile = ModContent.GetInstance<CursedBonesTile>();
+			
+			if( mytile.PreCustomItemDrops == null ) {
+				mytile.PreCustomItemDrops = new HashSet<PreCustomItemDrop>();
+			}
 			if( mytile.CustomItemDrops == null ) {
 				mytile.CustomItemDrops = new HashSet<CustomItemDrop>();
 			}
@@ -110,12 +118,16 @@ namespace CursedBones.Tiles {
 		////////////////
 
 		public override bool Drop( int i, int j ) {
-			var mytile = ModContent.GetInstance<CursedBonesTile>();
+			var myTileSingleton = ModContent.GetInstance<CursedBonesTile>();
 
-			foreach( CustomItemDrop hook in mytile.CustomItemDrops ) {
+			foreach( PreCustomItemDrop hook in myTileSingleton.PreCustomItemDrops ) {
 				if( !hook.Invoke(i, j) ) {
 					return false;
 				}
+			}
+
+			foreach( CustomItemDrop hook in myTileSingleton.CustomItemDrops ) {
+				hook.Invoke( i, j );
 			}
 
 			return true;
