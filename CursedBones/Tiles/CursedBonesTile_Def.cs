@@ -58,24 +58,23 @@ namespace CursedBones.Tiles {
 
 		////////////////
 
-		private ISet<PreCustomItemDrop> PreCustomItemDrops;
+		private ISet<PreCustomItemDrop> PreCustomItemDrops = new HashSet<PreCustomItemDrop>();
 
-		private ISet<CustomItemDrop> CustomItemDrops;
+		private ISet<CustomItemDrop> CustomItemDrops = new HashSet<CustomItemDrop>();
 
 
 
 		////////////////
 		
+		public void AddPreCustomItemDropHook( PreCustomItemDrop hook ) {
+			var mytile = ModContent.GetInstance<CursedBonesTile>();
+			
+			mytile.PreCustomItemDrops.Add( hook );
+		}
+		
 		public void AddCustomItemDropHook( CustomItemDrop hook ) {
 			var mytile = ModContent.GetInstance<CursedBonesTile>();
 			
-			if( mytile.PreCustomItemDrops == null ) {
-				mytile.PreCustomItemDrops = new HashSet<PreCustomItemDrop>();
-			}
-			if( mytile.CustomItemDrops == null ) {
-				mytile.CustomItemDrops = new HashSet<CustomItemDrop>();
-			}
-
 			mytile.CustomItemDrops.Add( hook );
 		}
 
