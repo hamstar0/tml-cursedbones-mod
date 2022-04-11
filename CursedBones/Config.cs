@@ -102,5 +102,10 @@ namespace CursedBones {
 		[Range( 1, 100 )]
 		[DefaultValue( 5 )]
 		public int CursedBonesWorldGenPatchDensityDegree { get; set; } = 5;
+
+
+		[Range( 0f, 1f )]
+		[DefaultValue( 0.65f )]
+		public float CursedBonesPatchSizeScaleOnSurface { get; set; } = 0.65f;
 	}
 }

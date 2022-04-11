@@ -136,7 +136,7 @@ namespace CursedBones.Tiles {
 		////////////////
 
 		public override void ModifyLight( int x, int y, ref float r, ref float g, ref float b ) {
-			float bright = 0.35f;
+			float bright = 0.325f;
 			int myFrame = CursedBonesTile.GetRandomFrame( x, y );
 			float lit;
 

@@ -15,8 +15,8 @@ namespace CursedBones {
 
 			hasMatter = tile?.active() == true;
 
-			// No sky tiles
-			if( y < Main.worldSurface ) {
+			// No 'open air' tiles
+			if( y < WorldGen.worldSurface ) {	//Main.worldSurface?
 				if( tile.wall == 0 ) {
 					return false;
 				}

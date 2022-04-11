@@ -9,9 +9,9 @@ namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
 		private (int x, int y)? PickAndRemoveNextTileFromCandidates( ISet<(int x, int y)> candidates ) {
 			var config = CursedBonesConfig.Instance;
-			int density = config.CursedBonesWorldGenPatchDensityDegree; // higher this is, the more "compact"
+			int density = config.CursedBonesWorldGenPatchDensityDegree;
 
-			(int, int)[] sample = this.PickRandomTileSampleFromCandidates( candidates, density );
+			(int, int)[] sample = this.PickRandomTilesFromCandidates( candidates, density );
 			(int, int)? pick = this.PickPriorityTileFromCandidates( sample );	// prioritizes denser patches
 
 			if( pick.HasValue ) {
@@ -24,16 +24,18 @@ namespace CursedBones {
 
 		////////////////
 
-		private (int x, int y)[] PickRandomTileSampleFromCandidates( ISet<(int x, int y)> candidates, int sampleSize ) {
-			var candidateCandidates = new Dictionary<int, (int, int)>();
+		private (int x, int y)[] PickRandomTilesFromCandidates(
+					ISet<(int x, int y)> candidates,
+					int sampleSize ) {
+			var candidateCandidates = new HashSet<(int, int)>();
 			(int, int)[] candidatesArray = candidates.ToArray();
 
 			for( int i=0; i<sampleSize; i++ ) {
 				int check = WorldGen.genRand.Next( candidatesArray.Length );
-				candidateCandidates[ check ] = candidatesArray[ check ];
+				candidateCandidates.Add( candidatesArray[check] );
 			}
 
-			return candidateCandidates.Values.ToArray();
+			return candidateCandidates.ToArray();
 		}
 
 		////

@@ -11,29 +11,40 @@ namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
 		public void GenPatchAt( int tileX, int tileY ) {
 			var config = CursedBonesConfig.Instance;
-			int minPatchSize = config.CursedBonesWorldGenPatchMinimumSize;
-			int maxPatchSize = config.CursedBonesWorldGenPatchMaximumSize;
+			int minPatchSize = config.Get<int>( nameof(config.CursedBonesWorldGenPatchMinimumSize) );
+			int maxPatchSize = config.Get<int>( nameof(config.CursedBonesWorldGenPatchMaximumSize) );
 
 			float gradY = CursedBonesPatchesGen.CalculateVerticalGradientPercentAt( tileY );
 
 			int patchSize = WorldGen.genRand.Next( minPatchSize, maxPatchSize );
 			patchSize = (int)( (float)patchSize * gradY );
 
+			if( tileY < (WorldGen.worldSurface / 16d) ) {
+				float surfPatchScale = config.Get<float>( nameof(config.CursedBonesPatchSizeScaleOnSurface) );
+				patchSize = (int)((float)patchSize * surfPatchScale);
+			}
+
 			if( patchSize < minPatchSize ) {
 				//return false;
 				patchSize = minPatchSize;
 			}
+
+			//
 
 			ISet<(int x, int y)> genAttempts = new HashSet<(int, int)>();
 			ISet<(int x, int y)> skips = new HashSet<(int, int)>();
 			ISet<(int x, int y)> candidates = new HashSet<(int, int)>();
 			int gennedTiles = 0;
 
+			//
+			
 			if( patchSize >= 1 ) {
 				gennedTiles++;
 
 				candidates.Add( (tileX, tileY) );
 			}
+
+			//
 
 			while( candidates.Count >= 1 ) {
 				(int x, int y)? maybePair = this.PickAndRemoveNextTileFromCandidates( candidates );
