@@ -52,12 +52,16 @@ namespace CursedBones {
 
 
 		[Range( 0f, 1f )]
-		[DefaultValue( 0.2f )]
-		public float CursedBonesWorldGenDensityGradientFromTopPercent { get; set; } = 0.2f;
+		[DefaultValue( 0.3f )]
+		public float CursedBonesPatchFrequencyTopGradientPercent { get; set; } = 0.3f;
+
+		[Range( 0f, 1f )]
+		[DefaultValue( 1f )]
+		public float CursedBonesPatchFrequencyGradientPercentPeak { get; set; } = 1f;
 
 		[Range( 0f, 1f )]
 		[DefaultValue( 0.1f )]
-		public float CursedBonesWorldGenDensityGradientFromBotPercent { get; set; } = 0.1f;	// was 0.05
+		public float CursedBonesPatchFrequencyBotGradientPercent { get; set; } = 0.1f;	// was 0.05
 
 
 
@@ -102,7 +106,7 @@ namespace CursedBones {
 
 		[Range( 1, 100 )]
 		[DefaultValue( 5 )]
-		public int CursedBonesWorldGenPatchDensityDegree { get; set; } = 5;
+		public int CursedBonesPatchCompactnessDegree { get; set; } = 5;
 
 
 		[Range( 0f, 1f )]

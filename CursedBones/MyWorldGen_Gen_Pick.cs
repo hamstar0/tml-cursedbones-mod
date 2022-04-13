@@ -9,9 +9,9 @@ namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
 		private (int x, int y)? PickAndRemoveNextTileFromCandidates( ISet<(int x, int y)> candidates ) {
 			var config = CursedBonesConfig.Instance;
-			int density = config.CursedBonesWorldGenPatchDensityDegree;
+			int compactness = config.Get<int>( nameof(config.CursedBonesPatchCompactnessDegree) );
 
-			(int, int)[] sample = this.PickRandomTilesFromCandidates( candidates, density );
+			(int, int)[] sample = this.PickRandomTilesFromCandidates( candidates, compactness );
 			(int, int)? pick = this.PickPriorityTileFromCandidates( sample );	// prioritizes denser patches
 
 			if( pick.HasValue ) {

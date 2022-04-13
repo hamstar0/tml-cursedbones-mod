@@ -11,10 +11,10 @@ namespace CursedBones {
 			var config = ModContent.GetInstance<CursedBonesConfig>();
 
 			float gradBegWldPerc = config.Get<float>(
-				nameof(config.CursedBonesWorldGenDensityGradientFromTopPercent)
+				nameof(config.CursedBonesPatchFrequencyTopGradientPercent)
 			);
 			float gradEndWldPerc = config.Get<float>(
-				nameof(config.CursedBonesWorldGenDensityGradientFromBotPercent)
+				nameof(config.CursedBonesPatchFrequencyBotGradientPercent)
 			);
 
 			//
@@ -29,22 +29,23 @@ namespace CursedBones {
 
 			//
 
-			int tileInGradRange, gradRange;
-			float tilePercInGradRange;
+			float tilePercInGradRange = config.Get<float>(
+				nameof(config.CursedBonesPatchFrequencyGradientPercentPeak)
+			);
+
+			//
 
 			if( tileY < topGradEndTileY ) {
-				gradRange = topGradEndTileY - topGradBegTileY;
-				tileInGradRange = tileY - topGradBegTileY;
+				int gradRange = topGradEndTileY - topGradBegTileY;
+				int tileInGradRange = tileY - topGradBegTileY;
 
-				tilePercInGradRange = (float)tileInGradRange / (float)gradRange;
+				tilePercInGradRange *= (float)tileInGradRange / (float)gradRange;
 			} else if( tileY >= botGradBegTileY ) {
-				gradRange = botGradEndTileY - botGradBegTileY;
-				tileInGradRange = tileY - botGradBegTileY;
+				int gradRange = botGradEndTileY - botGradBegTileY;
+				int tileInGradRange = tileY - botGradBegTileY;
 
 				float invTilePercInGradRange = (float)tileInGradRange / (float)gradRange;
-				tilePercInGradRange = 1f - invTilePercInGradRange;
-			} else {
-				tilePercInGradRange = 1f;
+				tilePercInGradRange *= 1f - invTilePercInGradRange;
 			}
 
 			return tilePercInGradRange;
@@ -59,8 +60,8 @@ namespace CursedBones {
 
 		public override void Apply( GenerationProgress progress ) {
 			var config = CursedBonesConfig.Instance;
-			int minDistApart = config.CursedBonesWorldGenMinimumTileDistanceApart;
-			int maxRetries = config.CursedBonesWorldGenMaximumRetriesPerPatchUntilQuit;
+			int minDistApart = config.Get<int>( nameof(config.CursedBonesWorldGenMinimumTileDistanceApart) );
+			int maxRetries = config.Get<int>( nameof(config.CursedBonesWorldGenMaximumRetriesPerPatchUntilQuit) );
 
 			int maxTheoreticalGens = (Main.maxTilesX * Main.maxTilesY) / (minDistApart * minDistApart);
 			maxTheoreticalGens /= 10;

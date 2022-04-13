@@ -5,6 +5,27 @@ using Terraria.World.Generation;
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
+		private static bool HasOpenAirNearby( int tileX, int tileY ) {
+			int minX = tileX - 1 <= 0 ? 1 : tileX - 1;
+			int maxX = tileX + 1 >= Main.maxTilesX ? Main.maxTilesX - 1 : tileX + 1;
+			int minY = tileY - 1 <= 0 ? 1 : tileY - 1;
+			int maxY = tileY + 1 >= Main.maxTilesY ? Main.maxTilesY - 1 : tileY + 1;
+
+			for( int x = minX; x<maxX; x++ ) {
+				for( int y = minY; y<maxY; y++ ) {
+					if( Main.tile[x, y].wall == 0 ) {
+						return true;
+					}
+				}
+			}
+
+			return false;
+		}
+
+
+
+		////////////////
+
 		private bool IsValidGenTile( int x, int y, out bool hasMatter ) {
 			if( x <= 1 || x >= Main.maxTilesX - 1 || y <= 1 || y >= Main.maxTilesY - 1 ) {
 				hasMatter = true;
@@ -17,7 +38,7 @@ namespace CursedBones {
 
 			// No 'open air' tiles
 			if( y < WorldGen.worldSurface ) {	//Main.worldSurface?
-				if( tile.wall == 0 ) {
+				if( CursedBonesPatchesGen.HasOpenAirNearby(x, y) ) {
 					return false;
 				}
 			}
