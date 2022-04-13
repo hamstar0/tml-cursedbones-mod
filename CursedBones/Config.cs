@@ -53,11 +53,12 @@ namespace CursedBones {
 
 		[Range( 0f, 1f )]
 		[DefaultValue( 0.2f )]
-		public float CursedBonesWorldGenDensityGradientFromStartPercent { get; set; } = 0.2f;
+		public float CursedBonesWorldGenDensityGradientFromTopPercent { get; set; } = 0.2f;
 
 		[Range( 0f, 1f )]
-		[DefaultValue( 0.05f )]
-		public float CursedBonesWorldGenDensityGradientFromEndPercent { get; set; } = 0.05f;
+		[DefaultValue( 0.1f )]
+		public float CursedBonesWorldGenDensityGradientFromBotPercent { get; set; } = 0.1f;	// was 0.05
+
 
 
 		[Range( 5, 9999 )]
@@ -105,7 +106,7 @@ namespace CursedBones {
 
 
 		[Range( 0f, 1f )]
-		[DefaultValue( 0.65f )]
-		public float CursedBonesPatchSizeScaleOnSurface { get; set; } = 0.65f;
+		[DefaultValue( 0.5f )]
+		public float CursedBonesPatchSizeScaleOnSurface { get; set; } = 0.5f;
 	}
 }

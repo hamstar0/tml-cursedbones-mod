@@ -7,29 +7,47 @@ using Terraria.World.Generation;
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
-		public static float CalculateVerticalGradientPercentAt( int tileY ) {
+		public static float CalculatePatchIntensityPercentAt( int tileY ) {
 			var config = ModContent.GetInstance<CursedBonesConfig>();
 
-			float topGradPercY = config.CursedBonesWorldGenDensityGradientFromStartPercent;
-			float botGradPercY = config.CursedBonesWorldGenDensityGradientFromEndPercent;
+			float gradBegWldPerc = config.Get<float>(
+				nameof(config.CursedBonesWorldGenDensityGradientFromTopPercent)
+			);
+			float gradEndWldPerc = config.Get<float>(
+				nameof(config.CursedBonesWorldGenDensityGradientFromBotPercent)
+			);
 
 			//
 
-			float topGradRange = (float)Main.maxTilesY * topGradPercY;
-			float topGradY = (float)tileY / topGradRange;
-			topGradY = Math.Min( topGradY, 1f );
+			int topGradTileRange = (int)((float)Main.maxTilesY * gradBegWldPerc);
+			int topGradBegTileY = 0;
+			int topGradEndTileY = topGradTileRange;
+
+			int botGradTileRange = (int)((float)Main.maxTilesY * gradEndWldPerc);
+			int botGradBegTileY = Main.maxTilesY - botGradTileRange;
+			int botGradEndTileY = Main.maxTilesY - 1;
 
 			//
 
-			int invTileY = Main.maxTilesY - tileY;
+			int tileInGradRange, gradRange;
+			float tilePercInGradRange;
 
-			float botGradRange = (float)Main.maxTilesY * botGradPercY;
-			float botGradY = (float)invTileY / botGradRange;
-			botGradY = Math.Min( botGradY, 1f );
+			if( tileY < topGradEndTileY ) {
+				gradRange = topGradEndTileY - topGradBegTileY;
+				tileInGradRange = tileY - topGradBegTileY;
 
-			//
+				tilePercInGradRange = (float)tileInGradRange / (float)gradRange;
+			} else if( tileY >= botGradBegTileY ) {
+				gradRange = botGradEndTileY - botGradBegTileY;
+				tileInGradRange = tileY - botGradBegTileY;
 
-			return topGradY * botGradY;
+				float invTilePercInGradRange = (float)tileInGradRange / (float)gradRange;
+				tilePercInGradRange = 1f - invTilePercInGradRange;
+			} else {
+				tilePercInGradRange = 1f;
+			}
+
+			return tilePercInGradRange;
 		}
 
 
@@ -45,18 +63,26 @@ namespace CursedBones {
 			int maxRetries = config.CursedBonesWorldGenMaximumRetriesPerPatchUntilQuit;
 
 			int maxTheoreticalGens = (Main.maxTilesX * Main.maxTilesY) / (minDistApart * minDistApart);
-			maxTheoreticalGens /= 100;
-			//maxTheoreticalGens = (maxTheoreticalGens / 100000) * maxRetries;
+			maxTheoreticalGens /= 10;
+
+			//
 
 			var gens = new HashSet<(int, int)>();
 
 			for( int retries=0; retries<maxRetries; retries++ ) {
-				if( this.AttemptNextPatchGen(minDistApart, gens) ) {
-					retries = 0;
-
-					progress.Value = Math.Min( (float)gens.Count / (float)maxTheoreticalGens, 1f );
+				bool success = this.AttemptNextPatchGen_If( minDistApart, gens );
+				if( !success ) {
+					continue;
 				}
+
+				//
+
+				retries = 0;
+
+				progress.Value = Math.Min( (float)gens.Count / (float)maxTheoreticalGens, 1f );
 			}
+
+			//
 
 			progress.Value = 1f;
 		}
@@ -64,23 +90,9 @@ namespace CursedBones {
 
 		////////////////
 
-		public bool AttemptNextPatchGen( int minDistApart, ISet<(int, int)> allGennedPatches ) {
+		public bool AttemptNextPatchGen_If( int minDistApart, ISet<(int, int)> allGennedPatches ) {
 			int randX = WorldGen.genRand.Next( Main.maxTilesX );
 			int randY = WorldGen.genRand.Next( Main.maxTilesY );
-
-			//
-
-			float gradY = CursedBonesPatchesGen.CalculateVerticalGradientPercentAt( randY );
-			float invGradY = Math.Max( 1f - gradY, 0f );
-			int minMapDim = Main.maxTilesX > Main.maxTilesY
-				? Main.maxTilesY
-				: Main.maxTilesX;
-
-			minDistApart += (int)((float)minMapDim * invGradY);
-
-			//
-
-			int minDistSqr = minDistApart * minDistApart;
 
 			//
 
@@ -88,6 +100,22 @@ namespace CursedBones {
 			if( !testTile.HasValue ) {
 				return false;
 			}
+
+			//
+
+			float gradY = CursedBonesPatchesGen.CalculatePatchIntensityPercentAt( randY );
+			float invGradY = Math.Max( 1f - gradY, 0f );
+
+			int minMapDim = Main.maxTilesX > Main.maxTilesY
+				? Main.maxTilesY
+				: Main.maxTilesX;
+
+			// Patches are closer together with depth
+			minDistApart += (int)((float)minMapDim * invGradY);
+
+			//
+
+			int minDistSqr = minDistApart * minDistApart;
 
 			//
 
@@ -102,9 +130,13 @@ namespace CursedBones {
 				}
 			}
 
+			//
+
 			this.GenPatchAt( testTile.Value.x, testTile.Value.y );
 
 			allGennedPatches.Add( testTile.Value );
+
+			//
 
 			return true;
 		}

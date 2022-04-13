@@ -9,25 +9,50 @@ using CursedBones.Tiles;
 
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
-		public void GenPatchAt( int tileX, int tileY ) {
+		public static int ComputePatchSize( int tileY ) {
 			var config = CursedBonesConfig.Instance;
 			int minPatchSize = config.Get<int>( nameof(config.CursedBonesWorldGenPatchMinimumSize) );
 			int maxPatchSize = config.Get<int>( nameof(config.CursedBonesWorldGenPatchMaximumSize) );
 
-			float gradY = CursedBonesPatchesGen.CalculateVerticalGradientPercentAt( tileY );
+			//
+
+			float intensity = CursedBonesPatchesGen.CalculatePatchIntensityPercentAt( tileY );
+
+			//
+
+			int surfaceTileY = (int)( WorldGen.worldSurface / 16d );
+
+			if( tileY < surfaceTileY ) {
+				float surfPatchScale = config.Get<float>( nameof(config.CursedBonesPatchSizeScaleOnSurface) );
+
+				intensity *= surfPatchScale;
+			}
+
+			//
 
 			int patchSize = WorldGen.genRand.Next( minPatchSize, maxPatchSize );
-			patchSize = (int)( (float)patchSize * gradY );
+			patchSize = (int)( (float)patchSize * intensity );
 
-			if( tileY < (WorldGen.worldSurface / 16d) ) {
-				float surfPatchScale = config.Get<float>( nameof(config.CursedBonesPatchSizeScaleOnSurface) );
-				patchSize = (int)((float)patchSize * surfPatchScale);
-			}
+			//
 
 			if( patchSize < minPatchSize ) {
-				//return false;
 				patchSize = minPatchSize;
 			}
+
+			return patchSize;
+		}
+
+
+
+		////////////////
+
+		public void GenPatchAt( int tileX, int tileY ) {
+			var config = CursedBonesConfig.Instance;
+			int minPatchSize = config.Get<int>( nameof(config.CursedBonesWorldGenPatchMinimumSize) );
+
+			//
+
+			int patchSize = CursedBonesPatchesGen.ComputePatchSize( tileY );
 
 			//
 
