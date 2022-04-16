@@ -6,10 +6,11 @@ using Terraria.World.Generation;
 namespace CursedBones {
 	partial class CursedBonesPatchesGen : GenPass {
 		private static bool HasOpenAirNearby( int tileX, int tileY ) {
-			int minX = tileX - 1 <= 0 ? 1 : tileX - 1;
-			int maxX = tileX + 1 >= Main.maxTilesX ? Main.maxTilesX - 1 : tileX + 1;
-			int minY = tileY - 1 <= 0 ? 1 : tileY - 1;
-			int maxY = tileY + 1 >= Main.maxTilesY ? Main.maxTilesY - 1 : tileY + 1;
+			int rad = 2;
+			int minX = tileX - rad <= 0 ? 1 : tileX - rad;
+			int maxX = tileX + rad >= Main.maxTilesX ? Main.maxTilesX - 1 : tileX + rad;
+			int minY = tileY - rad <= 0 ? 1 : tileY - rad;
+			int maxY = tileY + rad >= Main.maxTilesY ? Main.maxTilesY - 1 : tileY + rad;
 
 			for( int x = minX; x<maxX; x++ ) {
 				for( int y = minY; y<maxY; y++ ) {
