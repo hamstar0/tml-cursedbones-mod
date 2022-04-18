@@ -110,7 +110,7 @@ namespace CursedBones {
 
 
 		[Range( 0f, 1f )]
-		[DefaultValue( 0.5f )]
-		public float CursedBonesPatchSizeScaleOnSurface { get; set; } = 0.5f;
+		[DefaultValue( 0.65f )]
+		public float CursedBonesPatchSizeScaleOnSurface { get; set; } = 0.65f;
 	}
 }
