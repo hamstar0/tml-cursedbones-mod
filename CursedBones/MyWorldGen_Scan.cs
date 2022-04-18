@@ -14,7 +14,9 @@ namespace CursedBones {
 
 			for( int x = minX; x<maxX; x++ ) {
 				for( int y = minY; y<maxY; y++ ) {
-					if( Main.tile[x, y].wall == 0 ) {
+					Tile tile = Main.tile[x, y];
+
+					if( tile?.active() != true && tile?.wall == 0 ) {
 						return true;
 					}
 				}
